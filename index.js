@@ -4,6 +4,7 @@
 // init project
 require('dotenv').config();
 var express = require('express');
+var requestedlanguages = require('express-request-language')
 var app = express();
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
@@ -14,14 +15,26 @@ app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 2
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
 
+app.use(requestedlanguages({
+  languages: ['en', 'fr', 'es'], // Supported languages
+  default: 'en', // Default language
+}));
+
+
 // http://expressjs.com/en/starter/basic-routing.html
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
 // your first API endpoint...
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' });
+app.get('/api/whoami', function (req, res) {
+ const ip = req.socket.remoteAddress;
+ const prefferredlanguages = req.languages;
+ console.log('ip address' + ip +' w langages ' + prefferredlanguages)
+ res.json({
+     ip : ip,
+     languages : 'list' + prefferredlanguages
+  });
   
 });
 

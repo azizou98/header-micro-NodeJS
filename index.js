@@ -16,8 +16,8 @@ app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 2
 app.use(express.static('public'));
 
 app.use(requestedlanguages({
-  languages: ['en', 'fr', 'es'], // Supported languages
-  default: 'en', // Default language
+  languages: ['en', 'fr', 'ar'], // Supported languages
+  default: 'ar', // Default language
 }));
 
 
@@ -29,11 +29,27 @@ app.get('/', function (req, res) {
 // your first API endpoint...
 app.get('/api/whoami', function (req, res) {
  const ip = req.socket.remoteAddress;
- const prefferredlanguages = req.languages;
+ 
+ // get the langagues 
+ const acceptLanguageHeader = req.headers['accept-language'];
+ const languages = acceptLanguageHeader
+     .split(',')
+     .map(lang => {
+         const [language, weight] = lang.split(';q=');
+         return {
+             language,
+             weight: weight ? parseFloat(weight) : 1.0, // Default weight is 1.0
+         };
+     })
+     .sort((a, b) => b.weight - a.weight) // Sort by weight (highest to lowest)
+     .map(langObj => `${langObj.language};q=${langObj.weight}`)
+     .join(',');
+
+ const prefferredlanguages = languages;
  console.log('ip address' + ip +' w langages ' + prefferredlanguages)
  res.json({
      ip : ip,
-     languages : 'list' + prefferredlanguages
+     languages : prefferredlanguages
   });
   
 });

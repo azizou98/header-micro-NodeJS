@@ -27,16 +27,11 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
-function getClientIp(req) {
-  return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-}
-
 // your first API endpoint...
 app.get('/api/whoami', function (req, res) {
 
   // get the ip addresss 
- const ip = getClientIp(req);
+ const ip = req.headers.host;
  
  // get the langagues 
  const acceptLanguageHeader = req.headers['accept-language'];
@@ -54,10 +49,16 @@ app.get('/api/whoami', function (req, res) {
      .join(',');
 
  const prefferredlanguages = languages;
- console.log('ip address v4' + ip +' w langages ' + prefferredlanguages)
+
+ //getting the software 
+ const software = req.headers['user-agent'];
+
+ console.log('ip address v4' + ip +' w langages ' + prefferredlanguages);
+
  res.json({
-     ip : ip,
-     languages : prefferredlanguages
+     ipaddress : ip,
+     language : prefferredlanguages,
+     software :software
   });
   
 });

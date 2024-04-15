@@ -14,6 +14,7 @@ app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 2
 
 // http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
+app.set('trust proxy',1);
 
 app.use(requestedlanguages({
   languages: ['en', 'fr', 'ar'], // Supported languages
@@ -26,9 +27,16 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+
+function getClientIp(req) {
+  return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+}
+
 // your first API endpoint...
 app.get('/api/whoami', function (req, res) {
- const ip = req.socket.remoteAddress;
+
+  // get the ip addresss 
+ const ip = getClientIp(req);
  
  // get the langagues 
  const acceptLanguageHeader = req.headers['accept-language'];
@@ -46,7 +54,7 @@ app.get('/api/whoami', function (req, res) {
      .join(',');
 
  const prefferredlanguages = languages;
- console.log('ip address' + ip +' w langages ' + prefferredlanguages)
+ console.log('ip address v4' + ip +' w langages ' + prefferredlanguages)
  res.json({
      ip : ip,
      languages : prefferredlanguages
